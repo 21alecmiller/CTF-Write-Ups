@@ -1,4 +1,4 @@
-Intro To Linux - Hard 1 Write Up                                
+Intro To Linux - Hard 1 Write Up                                 
 Alec Miller
 
 Challenge: Become a Hard1 User
