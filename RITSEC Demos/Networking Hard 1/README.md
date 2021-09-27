@@ -1,4 +1,5 @@
-Intro To Networking - Hard 1 Write Up                       Alec Miller
+Intro To Networking - Hard 1 Write Up                       
+Alec Miller
 
 Challenge: If you haven’t run into it yet, port 10000 is open for some kind of game. Looks pretty easy, just too repetitive to do myself. Maybe you can automate the solving?
 
