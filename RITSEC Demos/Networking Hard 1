@@ -1,0 +1,49 @@
+Intro To Networking - Hard 1 Write Up                       Alec Miller
+
+Challenge: If you haven’t run into it yet, port 10000 is open for some kind of game. Looks pretty easy, just too repetitive to do myself. Maybe you can automate the solving?
+                        
+
+ 
+To start with, let's connect to the port listed in the challenge, by typing nc localhost 10000. 
+
+
+
+So it's a game, where we need to calculate basic stats on a set of numbers, 100 times. Again referring back to the description, it sounds like we should write a script to solve this automatically. To get working on this I switched to a different VM with a GUI just to see what was going on better, but it would be possible to do it inside the original VM as well. It's possible to connect to the game from a different VM the same way, just replace localhost with 192.168.74.133, the IP address of the original VM.
+
+
+
+One thing to note is that the game rotates between different headers, which impacts what line the actual problem starts on. To write the script, I wrote it in python using a package called pwntools, which is designed to help write quick CTF-style exploits by making it simple to communicate through sockets. It essentially lets the program run similar to a user, receiving and sending inputs. Sidenote: pwntools communicates in bytes, so a lot of byte translation and parsing occurs in order for types to match. 
+
+
+
+This is the format that all the math problems follow
+
+
+
+So the basic outline of the program looks something like this:
+Find the line where the problem starts (problem:str size:int)
+Parse the problem statement to get the operation and the amount of numbers in the set
+Get the set of numbers
+Perform the correct operation on the set of numbers
+Send the answer to the socket
+Repeat 99 more times
+
+I decided to split the program into 3 parts: the line identification/outside loop, parsing/performing the operations, and getting the list of numbers. 
+
+To identify the beginning of the problem due to the changing headers, I looped through all the initial lines until I reached one that contained 'problem:' since that indicates the correct format for the problem statement. Once that's found, it breaks out of the while loop and goes into the for loop, which parses all the math problems. None of the print statements are necessary for function, but they help with clarity when the program executes.
+
+
+
+In the parse function, the first thing is to determine the type of problem (mean/median/range/max/min), and the size of the set of numbers. 
+
+
+
+Knowing the size of the set allows us to get the list of numbers by looping through the next size lines. 
+
+
+
+Once we have a list of numbers, we can go back to the parse method to perform the correct operations. Python has built-in min, max, and round functions, and a statistics module for mean and median, so performing the operations is very simple. Then the answers get returned to the console, which in return provides a new problem.
+
+
+
+After solving all 100 problems, we get the flag!
