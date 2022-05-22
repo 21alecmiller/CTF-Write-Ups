@@ -1,0 +1,19 @@
+Cyber Apocalypse Writeup: Precious Guidance
+
+So for this challenge we're given a single zip file that contains a .vbs visual basic program. Trying to execute the file directly doesn't seem to do anything, and looking at the text it is very obfuscated. The bulk of the file are large arrays of a mix of random letter combinations and some numbers. There's also some real words interspersed, specifically after either REM or a '. 
+
+I've never seen visual basic before, so there was a lot of googling involved here in trying to simplify this code down. Turns out that both REM and ' are the start of comments, so I started by removing all the lines that started with those. I ended up saving all my edit steps in copies of the file in case I messed up (which happened). There were also some comments that started on the same line as actual code, but I removed those too. That helped a bit, but it was still pretty hard to see what was going on. 
+
+Cat-ing out the file and filtering out the array definitions with *grep -v Array* helped see what else was going on. This showed a lot of constant integer assignments, and I recognized some of the variable names from the array definitions, so the arrays are actually only integers. There were also several execute statements calling a function "polymerase", with an array as the argument. Later down we can see a function definition for polymerase, which is also obfuscated, but appears to be concatenating and returning a string. The file ends with a mix of some real words and letter combinations that don't appear elsewhere in the file, I ignored those at this point. (Below is just a snippet, the file is very long)
+
+![polymerase definition](https://user-images.githubusercontent.com/55161488/169716356-71c7f6d9-c2d9-443c-8601-a39a20291e5a.png)
+
+The execute function in visual basic is pretty interesting, it takes a string argument and tries to execute it as function vbs code. So what it looks like polymerase is doing is taking the integer arrays and creating vbs code, passing that to execute. At this point I needed to turn those arrays into something I could actually see, so I wrote a python program to mimic what the polymerase function was doing and send the results to functions.txt. 
+
+This output is pretty long too, but is definitely functional vbs script. Turns out the random words/letters at the end of the original file are the new function names being called. Interestingly there's also a couple arrays in here as well. Decoding the first with the polymerase script, we get a letter relating to the CTF, but importantly it references 'retrieve a final key to this database'. So basically, right track but keep going, so that's a good sign. There's another function with an array, pooch, which appears to be writing to a file. After looking through all the functions for a while, it looks like a lot of them aren't doing much at all. The important functions seem to be pooch and sereande, so I made a new file with only those functions and their dependencies. There were also a couple lines that would quit the script or delete files, so those lines got commented out, definitely would've made this tricky if everything got deleted.
+
+I switched over to Windows to run this, and after running it I found the file textual.m3u that was referenced in the vbs. Copying that over to linux and running file on it shows that it's actually a PE32 executable .net assembly. JetBrains has a great .net decompiler called dotPeek, so I opened it up in that. In the sidebar there's a string variable called password, which is defined in the Backdoor class. 
+
+![dotPeek](https://user-images.githubusercontent.com/55161488/169718184-af2a2e38-0a45-470e-8610-ca9dd3799c9c.png)
+
+Appending the parts together and decoding from hex gets the flag!
